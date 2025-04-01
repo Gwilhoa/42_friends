@@ -139,6 +139,7 @@ async function displayFriends() {
 
     const content = document.createElement("div");
     content.className = "overflowable-item";
+    content.style = "width: 100%; height: 100%;"
 
     const today = new Date().toISOString().split('T')[0];
     const { monday, sunday } = getMondayAndSunday(today);
@@ -226,6 +227,17 @@ async function displayFriends() {
         }
     }
 
+    if (!FRIEND_LIST.length) {
+        const noFriendContainer = document.createElement("div")
+        noFriendContainer.style = "width: 100%; height: 100%; padding: 3rem;"
+        
+        const noFriend = document.createElement("div")
+        noFriend.style = "width: 100%; height: 100%; border: 5px #f2f2f2 dashed; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f2f2f2; font-family: arial; font-size: 20px"
+        noFriend.textContent = "Add friends to show them here"
+        
+        noFriendContainer.appendChild(noFriend)
+        content.appendChild(noFriendContainer)
+    }
 
     inner.appendChild(title);
     inner.appendChild(content);
