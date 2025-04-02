@@ -276,6 +276,10 @@ async function displayFriend(content, friend, date_range, today) {
 async function displayFriends() {
     const FRIEND_LIST = getFriendList();
 
+    const photoElement = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")[0]
+
+    photoElement.style = "padding-bottom: 100px; align-items: center"
+
     const rowElem = document.querySelector(".container-fullsize.full-width.fixed-height");
     if (!rowElem) return;
 
@@ -368,5 +372,26 @@ async function displayFriends() {
     rowElem.firstElementChild.insertBefore(friendContainer, rowElem.firstElementChild.firstChild);
 }
 
+function betterDisplay() {
+    setTimeout(() => {
+
+        const elements = document.getElementsByClassName("improved-intra-banner customized")
+        console.log(elements)
+        if (elements.length) {
+            elements[0].style.setProperty("height", "100vh", "important");
+
+            document.getElementsByClassName("container-fullsize full-width fixed-height")[0].style.setProperty("backdrop-filter", "blur(10px)", "important")
+
+
+            const blurConnector = document.createElement("div")
+            blurConnector.style = "width: 100%; height: 20px;"
+
+            document.getElementsByClassName("home-middle-td")[0].insertBefore(blurConnector, document.getElementsByClassName("home-middle-td")[0].lastElementChild)
+        }
+        
+    }, 2000)
+}
+
 displayLogtime();
 displayFriends();
+betterDisplay();
