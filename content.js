@@ -379,14 +379,78 @@ function betterDisplay() {
         console.log(elements)
         if (elements.length) {
             elements[0].style.setProperty("height", "100vh", "important");
+        } else {
+            const elements = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")
+            elements[0].style.setProperty("background-image", "unset", "important");
+            elements[0].style.setProperty("background-color", "transparent", "important");
+            document.getElementsByClassName("container-item profile-item full-width")[0].style.setProperty("background-color", "transparent", "important")
+            console.log(document.getElementsByClassName("page-content page-content-fluid")[0])
+            document.getElementsByClassName("page-content page-content-fluid")[0].style = "background-image: url(https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg)"
+        }
+        const container = document.getElementsByClassName("container-fullsize full-width fixed-height")[0];
+        document.getElementsByTagName("footer")[0].style = "z-index: 999;"
 
-            document.getElementsByClassName("container-fullsize full-width fixed-height")[0].style.setProperty("backdrop-filter", "blur(10px)", "important")
+        console.log(container.firstElementChild)
 
+        container.style.setProperty("position", "relative", "important");
+        container.style.setProperty("z-index", "2", "important");
+        // rowElement.style.position = "relative"
+        // blurContainer.style.zIndex = "2";
 
-            const blurConnector = document.createElement("div")
-            blurConnector.style = "width: 100%; height: 20px;"
+        // Create the progressive blur container
+        const blurContainer = document.createElement("div");
+        blurContainer.className = "progressive-blur-container";
+        blurContainer.style.position = "fixed";
+        blurContainer.style.left = "0";
+        blurContainer.style.bottom = "0";
+        blurContainer.style.right = "0";
+        blurContainer.style.width = "100%";
+        blurContainer.style.height = "70%";
+        blurContainer.style.pointerEvents = "none";
+        blurContainer.style.zIndex = "-1";
 
-            document.getElementsByClassName("home-middle-td")[0].insertBefore(blurConnector, document.getElementsByClassName("home-middle-td")[0].lastElementChild)
+        // Blur filter definitions
+        const blurLayers = [
+        { blur: "1px", mask: "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%)" },
+        { blur: "2px", mask: "linear-gradient(rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%)" },
+        { blur: "4px", mask: "linear-gradient(rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%)" },
+        { blur: "8px", mask: "linear-gradient(rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%)" },
+        { blur: "16px", mask: "linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%)" },
+        { blur: "32px", mask: "linear-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%)" },
+        ];
+
+        blurLayers.forEach(({ blur, mask }) => {
+        const layer = document.createElement("div");
+        layer.className = "blur-filter";
+        layer.style.position = "absolute";
+        layer.style.top = "0";
+        layer.style.left = "0";
+        layer.style.bottom = "0";
+        layer.style.right = "0";
+        layer.style.backdropFilter = `blur(${blur})`;
+        layer.style.webkitMaskImage = mask;
+        layer.style.maskImage = mask;
+        layer.style.maskSize = "100% 100%";
+        layer.style.webkitMaskSize = "100% 100%";
+        blurContainer.appendChild(layer);
+        });
+
+        // Gradient overlay
+        const gradient = document.createElement("div");
+        gradient.className = "gradient";
+        gradient.style.position = "absolute";
+        gradient.style.top = "0";
+        gradient.style.left = "0";
+        gradient.style.right = "0";
+        gradient.style.bottom = "0";
+        gradient.style.background = "linear-gradient(transparent, transparent)";
+        blurContainer.appendChild(gradient);
+
+        container.appendChild(blurContainer);
+
+        const rowElement = document.getElementsByClassName("col-lg-4 col-md-6 col-xs-12 fixed-height")
+        for (const element of rowElement) {
+            element.firstElementChild.style = "border-radius: 30px; "
         }
         
     }, 2000)
