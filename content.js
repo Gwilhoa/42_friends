@@ -377,28 +377,37 @@ function betterDisplay() {
     setTimeout(() => {
 
         const elements = document.getElementsByClassName("improved-intra-banner customized")
+        let image = "url(https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg)"
         console.log(elements)
         if (elements.length) {
-            elements[0].style.setProperty("height", "100vh", "important");
-        } else {
-            const elements = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")
-            elements[0].style.setProperty("background-image", "unset", "important");
-            elements[0].style.setProperty("background-color", "transparent", "important");
-            document.getElementsByClassName("container-item profile-item full-width")[0].style.setProperty("background-color", "transparent", "important")
-            console.log(document.getElementsByClassName("page-content page-content-fluid")[0])
-            document.getElementsByClassName("page-content page-content-fluid")[0].style = "background-image: url(https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg)"
+            image = elements[0].style.backgroundImage
+            elements[0].remove()
         }
+        const val = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")
+        val[0].style.setProperty("background-image", "unset", "important");
+        val[0].style.setProperty("background-color", "transparent", "important");
+        document.getElementsByClassName("container-item profile-item full-width")[0].style.setProperty("background-color", "transparent", "important")
+        console.log(document.getElementsByClassName("page-content page-content-fluid")[0])
+        document.getElementsByClassName("page-content page-content-fluid")[0].style = "background-image: " + image
         const container = document.getElementsByClassName("container-fullsize full-width fixed-height")[0];
         document.getElementsByTagName("footer")[0].style = "z-index: 999;"
+
+        document.getElementsByClassName("page-sidebar left-main-container page-sidebar-fixed-left under-main-navbar")[0].style = "z-index: 99;"
+
+        document.getElementsByClassName("main-navbar")[0].style = "position: fixed; top: 0; width: 100vw;"
+
+        const buttonsList = document.getElementsByClassName("pull-right button-actions margin-right-42")[0];
+        buttonsList.remove();
+        
+        const bannerContainer = document.getElementsByClassName("user-banner margin-left-38 margin-right-10 visible-lg hidden-md")[0];
+        bannerContainer.appendChild(buttonsList);
+        buttonsList.className = "button-actions"
 
         console.log(container.firstElementChild)
 
         container.style.setProperty("position", "relative", "important");
         container.style.setProperty("z-index", "2", "important");
-        // rowElement.style.position = "relative"
-        // blurContainer.style.zIndex = "2";
 
-        // Create the progressive blur container
         const blurContainer = document.createElement("div");
         blurContainer.className = "progressive-blur-container";
         blurContainer.style.position = "fixed";
@@ -457,6 +466,137 @@ function betterDisplay() {
     }, 2000)
 }
 
+async function displayTCLBus() {
+    const rowElem = document.querySelector(".container-fullsize.full-width.fixed-height");
+    if (!rowElem) return;
+
+    const tclBusContainer = document.createElement("div");
+    tclBusContainer.className = "col-lg-4 col-md-6 col-xs-12 fixed-height";
+
+    const inner = document.createElement("div");
+    inner.className = "container-inner-item boxed agenda-container";
+
+    const title = document.createElement("h4");
+    title.className = "profile-title";
+    title.textContent = "Next TCL Depard";
+
+    const menu = document.createElement("span");
+    menu.className = "pull-right";
+
+    const dropDown = document.createElement("span");
+    dropDown.className = "dropdown event_search_dropdown";
+
+    const dropDownTitle = document.createElement("a");
+    dropDownTitle.className = "dropdown-toggle btn simple-link";
+    dropDownTitle.setAttribute("data-toggle", "dropdown");
+    dropDownTitle.href = "#";
+    dropDownTitle.id = "dropdownMenuTCLBus";
+    dropDownTitle.role = "button";
+    dropDownTitle.setAttribute("aria-expanded", "false");
+    dropDownTitle.textContent = "Select Route ▾";
+    // const dropDownInput = document.createElement("input");
+    // dropDownTitle.onclick = () => {setTimeout(() => dropDownInput.focus(), 10)}
+
+    const dropDownContent = document.createElement("div");
+    dropDownContent.setAttribute("aria-labelledby", "dropdownMenuTCLBus");
+    dropDownContent.className = "dropdown-menu pull-right";
+    dropDownContent.style = "top: 21px; padding: .25rem; min-width: 150px; font-size: unset";
+
+    const dropDownContentInner = document.createElement("div");
+    dropDownContentInner.className = "event_search_form ul";
+    dropDownContentInner.style = "display: flex; flex-direction: column; align-items: center;";
+
+    const selectStartTitle = document.createElement("div");
+    selectStartTitle.textContent = 'From :'
+
+    const selectStartElement = document.createElement("select");
+    selectStartElement.name = "Start";
+    selectStartElement.style = "margin: 10px; padding: 5px;";
+    selectStartElement.onclick = (e) => {e.stopPropagation()}
+
+    const selectEndTitle = document.createElement("div");
+    selectEndTitle.textContent = 'To :'
+    selectEndTitle.style = "margin-top: 20px;"
+
+    const selectEndElement = document.createElement("select");
+    selectEndElement.name = "End";
+    selectEndElement.style = "margin: 10px; padding: 5px;";
+    selectEndElement.onclick = (e) => {e.stopPropagation()}
+
+    function saveTCLSelection(start, end) {
+        sessionStorage.setItem("tcl_start", start);
+        sessionStorage.setItem("tcl_end", end);
+    }
+    
+    function loadTCLSelection() {
+        return {
+            start: sessionStorage.getItem("tcl_start") || "",
+            end: sessionStorage.getItem("tcl_end") || "",
+        };
+    }
+
+    dropDownContentInner.appendChild(selectStartTitle);
+    dropDownContentInner.appendChild(selectStartElement);
+    dropDownContentInner.appendChild(selectEndTitle);
+    dropDownContentInner.appendChild(selectEndElement);
+
+    const url = "https://data.grandlyon.com/fr/datapusher/ws/rdata/tcl_sytral.tclarret/all.json?maxfeatures=-1&start=1&filename=points-arret-reseau-transports-commun-lyonnais";
+
+    fetch(url)
+    .then(response => response.json())
+    .then(data => {
+        const noms = data.values
+        .map(value => value.nom)
+        .filter((nom, index, self) => nom && self.indexOf(nom) === index)
+        .sort()
+
+        const savedSelections = loadTCLSelection();
+
+        noms.forEach(nom => {
+            const option = document.createElement("option");
+            option.value = nom;
+            option.textContent = nom;
+
+            if (nom === savedSelections.start) option.selected = true;
+            selectStartElement.appendChild(option);
+
+            const optionClone = option.cloneNode(true);
+            if (nom === savedSelections.end) optionClone.selected = true;
+            selectEndElement.appendChild(optionClone);
+        });
+    })
+    .catch(error => console.error("Erreur :", error));
+
+    selectStartElement.addEventListener("change", () => {
+        saveTCLSelection(selectStartElement.value, selectEndElement.value);
+    });
+    
+    selectEndElement.addEventListener("change", () => {
+        saveTCLSelection(selectStartElement.value, selectEndElement.value);
+    });
+
+    
+
+
+
+    dropDownContent.appendChild(dropDownContentInner);
+    dropDown.appendChild(dropDownTitle);
+    dropDown.appendChild(dropDownContent);
+    menu.appendChild(dropDown);
+    title.appendChild(menu);
+
+    const content = document.createElement("div");
+    content.className = "overflowable-item";
+    content.style = "width: 100%; height: 100%;"
+
+    inner.appendChild(title);
+    inner.appendChild(content);
+    tclBusContainer.appendChild(inner);
+
+    rowElem.firstElementChild.insertBefore(tclBusContainer, rowElem.firstElementChild.firstChild);
+}
+
 displayLogtime();
+displayTCLBus();
 displayFriends();
 betterDisplay();
