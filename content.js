@@ -160,6 +160,7 @@ async function displayFriend(content, friend, date_range, today) {
         photo.className = "user-profile-picture visible-sidebars";
         photo.style = `
             background-image: url(${friend_object.image.link});
+            background-size: cover;
             width: 40px;
             height: 40px;
             border-radius: 50%;
