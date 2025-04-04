@@ -392,7 +392,7 @@ function betterDisplay() {
         const container = document.getElementsByClassName("container-fullsize full-width fixed-height")[0];
         document.getElementsByTagName("footer")[0].style = "z-index: 999;"
 
-        document.getElementsByClassName("page-sidebar left-main-container page-sidebar-fixed-left under-main-navbar")[0].style = "z-index: 99;"
+        document.getElementsByClassName("page-sidebar left-main-container page-sidebar-fixed-left under-main-navbar")[0].style = "z-index: 99; width: 0;"
 
         document.getElementsByClassName("main-navbar")[0].style = "position: fixed; top: 0; width: 100vw;"
 
