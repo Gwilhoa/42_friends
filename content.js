@@ -115,7 +115,7 @@ function saveFriendList(list) {
     localStorage.setItem("friend_list", JSON.stringify(list));
 }
 
-async function displayFriend(content, friend, date_range, today) {
+async function displayFriend(content, friend, date_range, today, friend_object, log_time_object) {
     try {
         const URL = "https://profile.intra.42.fr/users/" + friend;
 
@@ -124,7 +124,7 @@ async function displayFriend(content, friend, date_range, today) {
         }).then(res => res.json());
 
         if (!Object.keys(friend_object).length) {
-            const new_friend_list = FRIEND_LIST.filter(val => val != friend);
+            const new_friend_list = getFriendList().filter(val => val != friend);
             saveFriendList(new_friend_list);
             location.reload();
         }
@@ -275,20 +275,21 @@ async function displayFriend(content, friend, date_range, today) {
 }
 
 async function displayFriends() {
-    const FRIEND_LIST = getFriendList();
+    let FRIEND_LIST = getFriendList();
+    const sortPreference = localStorage.getItem("friend_sort") || "Alphabetical (A-Z)";
 
-    const photoElement = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")[0]
-
-    photoElement.style = "padding-bottom: 100px; align-items: center"
+    const photoElement = document.getElementsByClassName("container-inner-item profile-item-top profile-banner home-banner flex flex-direction-row")[0];
+    photoElement.style = "padding-bottom: 100px; align-items: center";
 
     const rowElem = document.querySelector(".container-fullsize.full-width.fixed-height");
     if (!rowElem) return;
 
     const friendContainer = document.createElement("div");
     friendContainer.className = "col-lg-4 col-md-6 col-xs-12 fixed-height";
-
+    
     const inner = document.createElement("div");
     inner.className = "container-inner-item boxed agenda-container";
+    inner.style = "border-radius: 30px";
 
     const title = document.createElement("h4");
     title.className = "profile-title";
@@ -297,6 +298,7 @@ async function displayFriends() {
     const menu = document.createElement("span");
     menu.className = "pull-right";
 
+    // Dropdown Add Friend (inchangé)
     const dropDown = document.createElement("span");
     dropDown.className = "dropdown event_search_dropdown";
 
@@ -308,8 +310,6 @@ async function displayFriends() {
     dropDownTitle.role = "button";
     dropDownTitle.setAttribute("aria-expanded", "false");
     dropDownTitle.textContent = "Add friend ▾";
-    const dropDownInput = document.createElement("input");
-    dropDownTitle.onclick = () => {setTimeout(() => dropDownInput.focus(), 10)}
 
     const dropDownContent = document.createElement("div");
     dropDownContent.setAttribute("aria-labelledby", "dropdownMenuFriend");
@@ -320,9 +320,11 @@ async function displayFriends() {
     dropDownContentInner.className = "event_search_form ul";
     dropDownContentInner.style = "display: flex; flex-direction: column; align-items: center;";
 
-    dropDownInput.setAttribute("autofocus", true)
+    const dropDownInput = document.createElement("input");
+    dropDownInput.setAttribute("autofocus", true);
     dropDownInput.placeholder = "Enter login";
-    dropDownInput.style = "margin: 5px; padding: 5px; width: 80%; color: white; outline: none; background-color: #373c48; border: none; ";
+    dropDownInput.style = "margin: 5px; padding: 5px; width: 80%; color: white; outline: none; background-color: #373c48; border: none;";
+    dropDownTitle.onclick = () => {setTimeout(() => dropDownInput.focus(), 10)};
 
     dropDownInput.addEventListener("keydown", (e) => {
         if (e.key === "Enter") {
@@ -340,38 +342,115 @@ async function displayFriends() {
     dropDown.appendChild(dropDownTitle);
     dropDown.appendChild(dropDownContent);
     menu.appendChild(dropDown);
+
+    const sortDropDown = document.createElement("span");
+    sortDropDown.className = "dropdown event_search_dropdown";
+    sortDropDown.style = "margin-left: 10px;";
+
+    const sortTitle = document.createElement("a");
+    sortTitle.className = "dropdown-toggle btn simple-link";
+    sortTitle.setAttribute("data-toggle", "dropdown");
+    sortTitle.href = "#";
+    sortTitle.id = "dropdownMenuSortFriend";
+    sortTitle.role = "button";
+    sortTitle.setAttribute("aria-expanded", "false");
+    sortTitle.textContent = "Sort ▾";
+
+    const sortContent = document.createElement("div");
+    sortContent.setAttribute("aria-labelledby", "dropdownMenuSortFriend");
+    sortContent.className = "dropdown-menu pull-right";
+    sortContent.style = "top: 21px; padding: .25rem; min-width: 150px; font-size: unset";
+
+    const sortOptions = ["Alphabetical (A-Z)", "Alphabetical (Z-A)", "Online First", "Offline First"];
+    sortOptions.forEach(opt => {
+        const option = document.createElement("div");
+        option.textContent = opt;
+        option.style = "cursor: pointer; padding: 5px;";
+        if (opt === sortPreference) option.style.backgroundColor = "#2c2c2c";
+
+        option.onclick = () => {
+            localStorage.setItem("friend_sort", opt);
+            location.reload();
+        };
+
+        sortContent.appendChild(option);
+    });
+
+    sortDropDown.appendChild(sortTitle);
+    sortDropDown.appendChild(sortContent);
+    menu.appendChild(sortDropDown);
     title.appendChild(menu);
 
     const content = document.createElement("div");
     content.className = "overflowable-item";
-    content.style = "width: 100%; height: 100%;"
+    content.style = "width: 100%; height: 100%;";
 
     const today = new Date().toISOString().split('T')[0];
     const { monday, sunday } = getMondayAndSunday(today);
     const date_range = getDateRange(monday, sunday);
 
+    const friendDataList = [];
+
     for (const friend of FRIEND_LIST) {
-        await displayFriend(content, friend, date_range, today)
+        try {
+            const URL = "https://profile.intra.42.fr/users/" + friend;
+            const friend_object = await fetch(URL, { credentials: "include" }).then(res => res.json());
+
+            if (!Object.keys(friend_object).length) {
+                const new_friend_list = FRIEND_LIST.filter(val => val != friend);
+                saveFriendList(new_friend_list);
+                location.reload();
+                return;
+            }
+
+            const log_time_object = await fetch(`https://translate.intra.42.fr/users/${friend}/locations_stats.json`, {
+                credentials: "include",
+            }).then(res => res.json());
+
+            friendDataList.push({ friend, friend_object, log_time_object });
+
+        } catch (error) {
+            console.warn(`Failed to load data for ${friend}:`, error);
+        }
+    }
+
+    switch (sortPreference) {
+        case "Alphabetical (A-Z)":
+            friendDataList.sort((a, b) => a.friend.localeCompare(b.friend));
+            break;
+        case "Alphabetical (Z-A)":
+            friendDataList.sort((a, b) => b.friend.localeCompare(a.friend));
+            break;
+        case "Online First":
+            friendDataList.sort((a, b) => (b.friend_object.location ? 1 : 0) - (a.friend_object.location ? 1 : 0));
+            break;
+        case "Offline First":
+            friendDataList.sort((a, b) => (a.friend_object.location ? 1 : 0) - (b.friend_object.location ? 1 : 0));
+            break;
+    }
+
+    for (const { friend, friend_object, log_time_object } of friendDataList) {
+        await displayFriend(content, friend, date_range, today, friend_object, log_time_object);
     }
 
     if (!FRIEND_LIST.length) {
-        const noFriendContainer = document.createElement("div")
-        noFriendContainer.style = "width: 100%; height: 100%; padding: 3rem;"
+        const noFriendContainer = document.createElement("div");
+        noFriendContainer.style = "width: 100%; height: 100%; padding: 3rem;";
         
-        const noFriend = document.createElement("div")
-        noFriend.style = "width: 100%; height: 100%; border: 5px #f2f2f2 dashed; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f2f2f2; font-family: arial; font-size: 20px"
-        noFriend.textContent = "Add friends to show them here"
+        const noFriend = document.createElement("div");
+        noFriend.style = "width: 100%; height: 100%; border: 5px #f2f2f2 dashed; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f2f2f2; font-family: arial; font-size: 20px";
+        noFriend.textContent = "Add friends to show them here";
         
-        noFriendContainer.appendChild(noFriend)
-        content.appendChild(noFriendContainer)
+        noFriendContainer.appendChild(noFriend);
+        content.appendChild(noFriendContainer);
     }
 
     inner.appendChild(title);
     inner.appendChild(content);
     friendContainer.appendChild(inner);
-
     rowElem.firstElementChild.insertBefore(friendContainer, rowElem.firstElementChild.firstChild);
 }
+
 
 function betterDisplay() {
     setTimeout(() => {
@@ -419,7 +498,6 @@ function betterDisplay() {
         blurContainer.style.pointerEvents = "none";
         blurContainer.style.zIndex = "-1";
 
-        // Blur filter definitions
         const blurLayers = [
         { blur: "1px", mask: "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%)" },
         { blur: "2px", mask: "linear-gradient(rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%)" },
@@ -445,7 +523,6 @@ function betterDisplay() {
         blurContainer.appendChild(layer);
         });
 
-        // Gradient overlay
         const gradient = document.createElement("div");
         gradient.className = "gradient";
         gradient.style.position = "absolute";
