@@ -13,18 +13,63 @@ function displayLogtime(depth = 0) {
     const displayContainer = document.getElementsByClassName("user-data").item(0);
     if (!displayContainer) return;
 
-    const displayDiv = document.createElement("div");
-    displayDiv.classList.add("user-header-box", "location");
+    const logtimeToMinutes = (logtime) => {
+        const parts = logtime.match(/(\d+)h(\d+)/);
+        if (parts) {
+            return parseInt(parts[1]) * 60 + parseInt(parts[2]);
+        }
+        return 0;
+    };
+
+    const currentLogtimeMinutes = logtimeToMinutes(logtimeValue);
+
+    const targetLogtimeMinutes = 7 * 60;
+    const remainingMinutes = targetLogtimeMinutes - currentLogtimeMinutes;
+
+    let targetTimeText = "N/A";
+    if (remainingMinutes > 0) {
+        const now = new Date();
+        now.setMinutes(now.getMinutes() + remainingMinutes);
+
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        targetTimeText = `${hours}h${minutes}`;
+    }
+
+    const displayDivLogtime = document.createElement("div");
+    displayDivLogtime.classList.add("user-header-box", "location");
+    let color = "red";
+
+    if (currentLogtimeMinutes >= 7 * 60) {
+        color = "green";
+    } else if (currentLogtimeMinutes >= (6 * 60 + 18)) {
+        color = "orange";
+    }
+    displayDivLogtime.style.color = color;
 
     const logtimeText = document.createElement("div");
     logtimeText.textContent = "Current Logtime";
 
-    const logTimeValue = document.createElement("div");
-    logTimeValue.textContent = logtimeValue || "N/A";
+    const logTimeValueDiv = document.createElement("div");
+    logTimeValueDiv.textContent = logtimeValue || "N/A";
 
-    displayDiv.appendChild(logtimeText);
-    displayDiv.appendChild(logTimeValue);
-    displayContainer.appendChild(displayDiv);
+    displayDivLogtime.appendChild(logtimeText);
+    displayDivLogtime.appendChild(logTimeValueDiv);
+
+    const targetTimeTextDiv = document.createElement("div");
+
+// This is the new part:
+    if (remainingMinutes <= 0) {
+        targetTimeTextDiv.textContent = "7h reached!";
+    } else {
+        targetTimeTextDiv.textContent = "7h reached at " + targetTimeText;
+    }
+
+    targetTimeTextDiv.style.fontSize = "12px";
+    targetTimeTextDiv.style.color = "grey";
+
+    displayDivLogtime.appendChild(targetTimeTextDiv);
+    displayContainer.appendChild(displayDivLogtime);
 }
 
 function getMondayAndSunday(dateStr) {
@@ -119,20 +164,13 @@ async function displayFriend(content, friend, date_range, today, friend_object, 
     try {
         const URL = "https://profile.intra.42.fr/users/" + friend;
 
-        const friend_object = await fetch(URL, {
-            credentials: "include",
-        }).then(res => res.json());
 
         if (!Object.keys(friend_object).length) {
             const new_friend_list = getFriendList().filter(val => val != friend);
             saveFriendList(new_friend_list);
             location.reload();
         }
-
-        const log_time_object = await fetch(`https://translate.intra.42.fr/users/${friend}/locations_stats.json`, {
-            credentials: "include",
-        }).then(res => res.json());
-
+        
         const totalMs = date_range.reduce((sum, date) => {
             if (log_time_object[date]) {
                 const [h, m, s] = log_time_object[date].split(':');
