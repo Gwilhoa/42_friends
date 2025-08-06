@@ -118,31 +118,31 @@ function addTooltipOnHover(element, title) {
     tooltip.style.zIndex = "1000";
     tooltip.style.display = "none";
     document.body.appendChild(tooltip);
-  
+
     // Positionner le tooltip lors du hover
     const onMouseEnter = (e) => {
-      tooltip.style.display = "block";
-      const rect = element.getBoundingClientRect();
-      tooltip.style.left = `${rect.left + window.scrollX}px`;
-      tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 6}px`;
+        tooltip.style.display = "block";
+        const rect = element.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX}px`;
+        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 6}px`;
     };
-  
+
     const onMouseLeave = () => {
-      tooltip.style.display = "none";
+        tooltip.style.display = "none";
     };
-  
+
     const onMouseMove = (e) => {
-      tooltip.style.left = `${e.pageX + 10}px`;
-      tooltip.style.top = `${e.pageY + 10}px`;
+        tooltip.style.left = `${e.pageX + 10}px`;
+        tooltip.style.top = `${e.pageY + 10}px`;
     };
-  
+
     // Ajouter les listeners sans supprimer les autres
     element.addEventListener("mouseenter", onMouseEnter);
     element.addEventListener("mouseleave", onMouseLeave);
     element.addEventListener("mousemove", onMouseMove);
 
     return tooltip
-  }
+}
 
 function getFriendList() {
     const stored = localStorage.getItem("friend_list");
@@ -170,7 +170,7 @@ async function displayFriend(content, friend, date_range, today, friend_object, 
             saveFriendList(new_friend_list);
             location.reload();
         }
-        
+
         const totalMs = date_range.reduce((sum, date) => {
             if (log_time_object[date]) {
                 const [h, m, s] = log_time_object[date].split(':');
@@ -231,7 +231,7 @@ async function displayFriend(content, friend, date_range, today, friend_object, 
 
             connectionPellet.onclick = (event) => {
                 event.stopPropagation()
-                
+
                 window.open("https://meta.intra.42.fr/clusters#" + friend_object.location, "_blank")
             }
         }
@@ -252,7 +252,7 @@ async function displayFriend(content, friend, date_range, today, friend_object, 
           background-color: transparent;
           cursor: pointer;
         `;
-        
+
         const crossSVG = `
         <svg fill="white" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
           <g id="SVGRepo_iconCarrier">
@@ -260,29 +260,29 @@ async function displayFriend(content, friend, date_range, today, friend_object, 
           </g>
         </svg>
         `;
-        
+
         deleteFriend.innerHTML = crossSVG;
         const deleteFriendTooltip = addTooltipOnHover(deleteFriend, "Delete Friend")
         deleteFriend.onclick = (event) => {
             event.stopPropagation();
-        
+
             if (!confirm(`Are you sure you want to delete ${friend} from your friend list?`)) return;
-        
+
             const updatedList = getFriendList().filter(val => val !== friend);
             saveFriendList(updatedList);
-        
+
             deleteFriendTooltip.remove()
             item.remove();
-        
+
             if (updatedList.length === 0) {
                 const content = item.parentElement;
                 const noFriendContainer = document.createElement("div")
                 noFriendContainer.style = "width: 100%; height: 100%; padding: 3rem;"
-        
+
                 const noFriend = document.createElement("div")
                 noFriend.style = "width: 100%; height: 100%; border: 5px #f2f2f2 dashed; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f2f2f2; font-family: arial; font-size: 20px"
                 noFriend.textContent = "Add friends to show them here"
-        
+
                 noFriendContainer.appendChild(noFriend)
                 content.appendChild(noFriendContainer)
             }
@@ -324,7 +324,7 @@ async function displayFriends() {
 
     const friendContainer = document.createElement("div");
     friendContainer.className = "col-lg-4 col-md-6 col-xs-12 fixed-height";
-    
+
     const inner = document.createElement("div");
     inner.className = "container-inner-item boxed agenda-container";
     inner.style = "border-radius: 30px";
@@ -474,11 +474,11 @@ async function displayFriends() {
     if (!FRIEND_LIST.length) {
         const noFriendContainer = document.createElement("div");
         noFriendContainer.style = "width: 100%; height: 100%; padding: 3rem;";
-        
+
         const noFriend = document.createElement("div");
         noFriend.style = "width: 100%; height: 100%; border: 5px #f2f2f2 dashed; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #f2f2f2; font-family: arial; font-size: 20px";
         noFriend.textContent = "Add friends to show them here";
-        
+
         noFriendContainer.appendChild(noFriend);
         content.appendChild(noFriendContainer);
     }
@@ -515,7 +515,7 @@ function betterDisplay() {
 
         const buttonsList = document.getElementsByClassName("pull-right button-actions margin-right-42")[0];
         buttonsList.remove();
-        
+
         const bannerContainer = document.getElementsByClassName("user-banner margin-left-38 margin-right-10 visible-lg hidden-md")[0];
         bannerContainer.appendChild(buttonsList);
         buttonsList.className = "button-actions"
@@ -537,28 +537,28 @@ function betterDisplay() {
         blurContainer.style.zIndex = "-1";
 
         const blurLayers = [
-        { blur: "1px", mask: "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%)" },
-        { blur: "2px", mask: "linear-gradient(rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%)" },
-        { blur: "4px", mask: "linear-gradient(rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%)" },
-        { blur: "8px", mask: "linear-gradient(rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%)" },
-        { blur: "16px", mask: "linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%)" },
-        { blur: "32px", mask: "linear-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%)" },
+            { blur: "1px", mask: "linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1) 10%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 40%)" },
+            { blur: "2px", mask: "linear-gradient(rgba(0,0,0,0) 10%, rgba(0,0,0,1) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 50%)" },
+            { blur: "4px", mask: "linear-gradient(rgba(0,0,0,0) 15%, rgba(0,0,0,1) 30%, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 60%)" },
+            { blur: "8px", mask: "linear-gradient(rgba(0,0,0,0) 20%, rgba(0,0,0,1) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,0) 70%)" },
+            { blur: "16px", mask: "linear-gradient(rgba(0,0,0,0) 40%, rgba(0,0,0,1) 60%, rgba(0,0,0,1) 80%, rgba(0,0,0,0) 90%)" },
+            { blur: "32px", mask: "linear-gradient(rgba(0,0,0,0) 60%, rgba(0,0,0,1) 80%)" },
         ];
 
         blurLayers.forEach(({ blur, mask }) => {
-        const layer = document.createElement("div");
-        layer.className = "blur-filter";
-        layer.style.position = "absolute";
-        layer.style.top = "0";
-        layer.style.left = "0";
-        layer.style.bottom = "0";
-        layer.style.right = "0";
-        layer.style.backdropFilter = `blur(${blur})`;
-        layer.style.webkitMaskImage = mask;
-        layer.style.maskImage = mask;
-        layer.style.maskSize = "100% 100%";
-        layer.style.webkitMaskSize = "100% 100%";
-        blurContainer.appendChild(layer);
+            const layer = document.createElement("div");
+            layer.className = "blur-filter";
+            layer.style.position = "absolute";
+            layer.style.top = "0";
+            layer.style.left = "0";
+            layer.style.bottom = "0";
+            layer.style.right = "0";
+            layer.style.backdropFilter = `blur(${blur})`;
+            layer.style.webkitMaskImage = mask;
+            layer.style.maskImage = mask;
+            layer.style.maskSize = "100% 100%";
+            layer.style.webkitMaskSize = "100% 100%";
+            blurContainer.appendChild(layer);
         });
 
         const gradient = document.createElement("div");
@@ -577,7 +577,7 @@ function betterDisplay() {
         for (const element of rowElement) {
             element.firstElementChild.style = "border-radius: 30px; "
         }
-        
+
     }, 2000)
 }
 
@@ -642,7 +642,7 @@ async function displayTCLBus() {
         sessionStorage.setItem("tcl_start", start);
         sessionStorage.setItem("tcl_end", end);
     }
-    
+
     function loadTCLSelection() {
         return {
             start: sessionStorage.getItem("tcl_start") || "",
@@ -658,39 +658,39 @@ async function displayTCLBus() {
     const url = "https://data.grandlyon.com/fr/datapusher/ws/rdata/tcl_sytral.tclarret/all.json?maxfeatures=-1&start=1&filename=points-arret-reseau-transports-commun-lyonnais";
 
     fetch(url)
-    .then(response => response.json())
-    .then(data => {
-        const noms = data.values
-        .map(value => value.nom)
-        .filter((nom, index, self) => nom && self.indexOf(nom) === index)
-        .sort()
+        .then(response => response.json())
+        .then(data => {
+            const noms = data.values
+                .map(value => value.nom)
+                .filter((nom, index, self) => nom && self.indexOf(nom) === index)
+                .sort()
 
-        const savedSelections = loadTCLSelection();
+            const savedSelections = loadTCLSelection();
 
-        noms.forEach(nom => {
-            const option = document.createElement("option");
-            option.value = nom;
-            option.textContent = nom;
+            noms.forEach(nom => {
+                const option = document.createElement("option");
+                option.value = nom;
+                option.textContent = nom;
 
-            if (nom === savedSelections.start) option.selected = true;
-            selectStartElement.appendChild(option);
+                if (nom === savedSelections.start) option.selected = true;
+                selectStartElement.appendChild(option);
 
-            const optionClone = option.cloneNode(true);
-            if (nom === savedSelections.end) optionClone.selected = true;
-            selectEndElement.appendChild(optionClone);
-        });
-    })
-    .catch(error => console.error("Erreur :", error));
+                const optionClone = option.cloneNode(true);
+                if (nom === savedSelections.end) optionClone.selected = true;
+                selectEndElement.appendChild(optionClone);
+            });
+        })
+        .catch(error => console.error("Erreur :", error));
 
     selectStartElement.addEventListener("change", () => {
         saveTCLSelection(selectStartElement.value, selectEndElement.value);
     });
-    
+
     selectEndElement.addEventListener("change", () => {
         saveTCLSelection(selectStartElement.value, selectEndElement.value);
     });
 
-    
+
 
 
 
