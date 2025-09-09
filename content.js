@@ -33,7 +33,10 @@ function displayLogtime(depth = 0) {
 
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
-        targetTimeText = `${hours}h${minutes}`;
+        const orangeTime = now.setMinutes(now.getMinutes() - 42);
+        const orangeHours = String(new Date(orangeTime).getHours()).padStart(2, '0');
+        const orangeMinutes = String(new Date(orangeTime).getMinutes()).padStart(2, '0');
+        targetTimeText = `${hours}h${minutes} (6h18 at ${orangeHours}h${orangeMinutes})`;
     }
 
     const displayDivLogtime = document.createElement("div");
@@ -712,6 +715,6 @@ async function displayTCLBus() {
 }
 
 displayLogtime();
-displayTCLBus();
+// displayTCLBus();
 displayFriends();
-betterDisplay();
+// betterDisplay();
